@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 const SECRET_KEY = "chave_api_gfp";
 class rotasUsuarios {
   static async novoUsuario(req, res) {
-    const { nome, email, senha, tipo_acesso, ativo } = req.body;
+    const { nome, email, senha, tipo_acesso } = req.body;
 
     const saltRounds = 10;
 
@@ -57,15 +57,15 @@ class rotasUsuarios {
   }
   static async editarUsuarios(req, res) {
     const { id } = req.params;
-    const { nome, email, senha, tipo_acesso, ativo } = req.body;
+    const { nome, email, senha, tipo_acesso} = req.body;
 
     const saltRounds = 10;
 
     const senhaCriptografada = await bcrypt.hash(senha, saltRounds);
     try {
       const resposta = await BD.query(
-        "update usuarios set nome = $1, email = $2, senha = $3, tipo_acesso= $4,ativo =$5 where id_usuario = $6",
-        [nome, email, senhaCriptografada, tipo_acesso, ativo, id]
+        "update usuarios set nome = $1, email = $2, senha = $3, tipo_acesso= $4 where id_usuario = $5 and ativo = true",
+        [nome, email, senhaCriptografada, tipo_acesso, id]
       );
       res.status(200).json("usuario editado com sucesso");
     } catch (error) {
@@ -96,9 +96,7 @@ class rotasUsuarios {
 
     try {
       const resultado = await BD.query(
-        `SELECT id_usuario, nome, email, senha
-                   FROM usuarios
-                   WHERE email = $1`,
+        `SELECT * FROM usuarios WHERE email = $1 AND ativo = true`,
         [email]
       );
       if (resultado.rows.length === 0) {
@@ -123,20 +121,28 @@ class rotasUsuarios {
 
       return res
         .status(200)
-        .json({ message: "Login realizado com sucesso", token });
+        .json({token, id_usuario: usuario.id_usuario, nome: usuario.nome, email: usuario.email, tipo_acesso: usuario.tipo_acesso});
       // return res.status(200).json({ message: "Login realizado com sucesso" });
     } catch (error) {
       console.error("Erro ao realizar login:", error);
       return res
         .status(500)
-        .json({ message: "Erro ao realizar login", erro: error.message });
+        .json({ message: "Erro ao realizar login", error: error.message });
     }
   }
+
+  
   static async editar(req, res) {
     const { id } = req.params;
 
     const { nome, email, senha, tipo_acesso, ativo } = req.body;
-    console.log(typeof ativo);
+    const saltRounds = 10;
+
+    let senhaCriptografada
+    if (senha !== undefined && senha !== "") {
+     senhaCriptografada = await bcrypt.hash(senha, saltRounds);
+    }
+    
     try {
       //inicializar arrays(vetores) para armazenar os campos e valores a serem atualizados
       const campos = [];
@@ -150,9 +156,9 @@ class rotasUsuarios {
         campos.push(`email=$${valores.length + 1}`);
         valores.push(email);
       }
-      if (senha !== undefined) {
+      if (senhaCriptografada !== undefined) {
         campos.push(`senha=$${valores.length + 1}`);
-        valores.push(senha);
+        valores.push(senhaCriptografada);
       }
       if (tipo_acesso !== undefined) {
         campos.push(`tipo_acesso=$${valores.length + 1}`);
@@ -161,8 +167,7 @@ class rotasUsuarios {
       if (ativo !== undefined) {
         campos.push(`ativo = $${valores.length + 1}`);
         valores.push(ativo);
-        console.log(typeof valores[0]);
-        console.log(typeof valores);
+ 
       }
       if (campos.length === 0) {
         return res
@@ -173,7 +178,7 @@ class rotasUsuarios {
       const query = `update usuarios set  ${campos.join(
         ","
       )} where id_usuario = ${id} RETURNING *`;
-      console.log(query);
+
       const usuarios = await BD.query(query, valores);
       //verifica se o usuario foi atualizado
 
@@ -188,5 +193,22 @@ class rotasUsuarios {
         .json({ message: "erro ao atualizar usuario", error: error.message });
     }
   }
+
 }
 export default rotasUsuarios;
+export function autenticarToken(req, res, next) {
+  //extrair do token o cabeçalho da requisição
+  const token = req.headers["authorization"]; //Bearer<token>
+
+  //verificar se o token foi fornecido na requisição
+  if (!token) return res.status(403).json({ mensagem: "Token não fornecido" });
+  //verificar a validade do token
+  //jwd.verify que valida se o token é legitimo
+  jwt.verify(token.split(" ")[1], SECRET_KEY, (err, usuario) => {
+    if (err) return res.status(403).json({ mensagem: "Token invalido" });
+
+    //se o token for valido, adiciona os dados do usuario (decodificados no token)
+    //tornando essas informações disponiveis nao rotas que precisam da autenticação
+    req.usuario = usuario;
+    next();
+  })};
