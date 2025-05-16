@@ -4,13 +4,13 @@ import { BD } from "../db.js";
 class rotasContas {
   
   static async novoConta(req, res) {
-    const { nome, tipo_conta,saldo,conta_padrao ,ativo} = req.body;
+    const { nome, tipo_conta,saldo,conta_padrao} = req.body;
 
     try {
 
       const query = `insert into contas (  nome, tipo_conta,saldo,conta_padrao,ativo ) values ($1, $2, $3,$4,true)`;
      
-      const valores = [  nome, tipo_conta,saldo,conta_padrao,ativo ];
+      const valores = [  nome, tipo_conta,saldo,conta_padrao];
       const resposta = await BD.query(query, valores);
 
 

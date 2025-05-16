@@ -5,7 +5,7 @@ const Login = () => {
   const [mensagem, setMensagem] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [lembrar, setLembrar] = useState("");
+  const [lembrar, setLembrar] = useState(false);
 
   const navigate = useNavigate()
   async function botaoEntrar(e) {

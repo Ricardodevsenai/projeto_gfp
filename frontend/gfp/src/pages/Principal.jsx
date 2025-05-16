@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {useNavigation} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 function Principal (){
     const [usuario, setUsuario] = useState({});
-    const navigation = useNavigation();
+    const navigate = useNavigate();
   useEffect(() => {
     const buscarUsuarioLogado = async () => {
       try {
@@ -10,7 +10,7 @@ function Principal (){
         if (usuariolog) {
           setUsuario(JSON.parse(usuariolog));
         } else {
-          navigation.navigate("Login");
+          navigate("/");
         }
       } catch (error) {
         console.error("Erro ao obter usuário logado:", error);
@@ -21,7 +21,7 @@ function Principal (){
   const botao = async () => {
     try {
       await localStorage.removeItem("usuario logado");
-      navigation.navigate("Login");
+      navigate("/");
     } catch (error) {
       console.error("Erro ao remover usuário logado:", error);
     }
@@ -31,8 +31,7 @@ function Principal (){
               <div style = {{flexDirection: "row", justifyContent: "space-between",alignItems: "center"}}>
                 <p>Bem-vindo, {usuario.nome}</p>
                 <button
-                  title="Sair"
-                  onPress={botao}/>
+                  onClick={botao}>Sair</button>
               </div>
               <p>Principal</p>
             </div>

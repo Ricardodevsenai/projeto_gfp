@@ -12,6 +12,37 @@ const Estilos = {
       width: "100%",
       backgroundColor: corFundo,
     },
+    conteudoHeader: {
+      flex: 1,
+
+      backgroundColor: corSecundaria,
+   
+    },
+    conteudoCorpo: {
+      flex: 1,
+      backgroundColor: "white",
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 25,
+      padding: 15,
+    },imagemLista:{
+      width: 35,
+      height: 35,
+      marginRight: 10,
+    },
+    itemLista:{
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 7,
+      borderBottomWidth: 1,
+      borderBottomColor: "#ccc",
+    },textContainer:{
+      flex: 1,
+    },
+    nomeLista:{
+      fontSize: 16,
+      fontWeight: "bold",
+      color: corSecundaria,
+    },
     
   };
   export default Estilos;

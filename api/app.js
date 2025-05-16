@@ -46,13 +46,13 @@ app.delete("/subcategorias/:id",autenticarToken,rotasSubcategorias.deletarSubcat
 app.patch("/subcategorias/:id",autenticarToken,rotasSubcategorias.editar);
 
 //rotas contas
-app.post("/contas",autenticarToken,rotasContas.novoConta);
+app.post("/contas",rotasContas.novoConta);
 app.get("/contas",autenticarToken,rotasContas.listarConta);
-app.get("/contas/:id",autenticarToken,rotasContas.listar);
-app.put("/contas/:id",autenticarToken,rotasContas.editarConta);
-app.delete("/contas/:id",autenticarToken,rotasContas.deletarConta);
-app.patch("/contas/:id",autenticarToken,rotasContas.editar);
-app.get("/contas/filtrarContas",autenticarToken,rotasContas.filtrarNome);
+app.get("/contas/:id",rotasContas.listar);
+app.put("/contas/:id",rotasContas.editarConta);
+app.delete("/contas/:id",rotasContas.deletarConta);
+app.patch("/contas/:id",rotasContas.editar);
+app.get("/contas/filtrarContas",rotasContas.filtrarNome);
 
 //rotas transacao
 app.get("/transacao/somarTransacoes",rotasTransacao.somarTransacoes);
