@@ -27,16 +27,10 @@ static async filtrarCategoria(req, res) {
 //tipo_transacao = entrada
 const { tipo_transacao } = req.query;
 try {
-  const filtros = [];
-  const valores = [];
-  if (tipo_transacao) {
-    filtros.push(`tipo_transacao = $${valores.length + 1}`);
-    valores.push(tipo_transacao);
-    
-  }
-  const query = `select * from categorias ${filtros.length ?  `where ${filtros.join(" AND ")}` : ""} ORDER BY id_categoria DESC`;
-  const resposta = await BD.query(query, valores);
-  return res.status(200).json(resposta.rows)
+const query = `select * from categorias where tipo_transacao = $1 and ativo = true ORDER BY id_categoria desc`;
+const valores = [tipo_transacao]
+const resposta = await BD.query(query,valores)
+return res.status(200).json(resposta.rows)
 } catch (error) {
   console.log('erro ao filtrar categoria ', error);
         res.status(500).json({ message: "Erro ao filtrar categoria",error:error.message });
